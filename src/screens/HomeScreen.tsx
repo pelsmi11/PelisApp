@@ -40,7 +40,7 @@ export const HomeScreen = () => {
           />
         </View>
         {/* peliculas populares */}
-        <HorizontalSlider movies={popular} title="Popular" />
+        <HorizontalSlider movies={popular} title="Populares" />
         <HorizontalSlider movies={topRated} title="Top Rated" />
         <HorizontalSlider movies={upcoming} title="Upcoming" />
       </View>

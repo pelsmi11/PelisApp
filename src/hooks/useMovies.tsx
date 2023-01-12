@@ -1,15 +1,45 @@
 import React, {useEffect, useState} from 'react';
 import movieDB from '../api/movieDB';
-import {MovieDBNowPlaying, Movie} from '../interfaces/movieInterface';
+import {MovieDBMoviesResponse, Movie} from '../interfaces/movieInterface';
+
+interface MoviesState {
+  nowPlaying: Movie[];
+  popular: Movie[];
+  topRated: Movie[];
+  upcoming: Movie[];
+}
 
 export const useMovies = () => {
-  const [peliculasEnCine, setPeliculasEnCine] = useState<Movie[]>([]);
+  const [moviesState, setMoviesState] = useState<MoviesState>({
+    nowPlaying: [],
+    popular: [],
+    topRated: [],
+    upcoming: [],
+  });
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const getMovies = async () => {
     setIsLoading(true);
-    const {data} = await movieDB.get<MovieDBNowPlaying>('/now_playing');
-    setPeliculasEnCine(data.results);
+    const nowPlayingPromise =
+      movieDB.get<MovieDBMoviesResponse>('/now_playing');
+    const popularPromise = movieDB.get<MovieDBMoviesResponse>('/popular');
+    const topRatedPromise = movieDB.get<MovieDBMoviesResponse>('/top_rated');
+    const upcomingPromise = movieDB.get<MovieDBMoviesResponse>('/upcoming');
+
+    const [nowPlayingResp, popularResp, topRatedResp, upcomingResp] =
+      await Promise.all([
+        nowPlayingPromise,
+        popularPromise,
+        topRatedPromise,
+        upcomingPromise,
+      ]);
+
+    setMoviesState({
+      nowPlaying: nowPlayingResp.data.results,
+      popular: popularResp.data.results,
+      topRated: topRatedResp.data.results,
+      upcoming: upcomingResp.data.results,
+    });
     setIsLoading(false);
   };
 
@@ -18,7 +48,7 @@ export const useMovies = () => {
   }, []);
 
   return {
-    peliculasEnCine,
+    ...moviesState,
     isLoading,
   };
 };
